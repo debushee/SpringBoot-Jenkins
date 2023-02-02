@@ -1,80 +1,47 @@
 pipeline {
 	agent any
-	environment {
-		appIP="";
-		gitRepo="";
-		repoName="";
+	environment { // GIVE THESE VALUES
+		appIP="34.77.153.124";
+		containerName="java-docker";
+		imageName="java-docker";
 	}
 	stages{
-		stage('Test Application'){
+		stage('Docker Build'){
 			steps{
-			sh 'mvn clean test'
-			}
-		}
-		stage('Save Tests'){
-			steps{
-			sh 'mkdir -p /home/jenkins/Tests/${BUILD_NUMBER}_tests/'
-			sh 'mv ./target/surefire-reports/*.txt /home/jenkins/Tests/${BUILD_NUMBER}_tests/'
-			}
-		}
-		stage('SSH Build Deploy'){
-			steps{
-			sh '''ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			rm -rf $repoName
-			git clone $gitRepo
-			cd $repoName
-			rm -f ./src/main/resources/application-dev.properties
-			mvn clean package
+			sh '''
+			docker build -t debushee/$imageName:latest -t debushee/$imageName:build-$BUILD_NUMBER .
 			'''
 			}
 		}
-		stage('Moving War'){
+		stage('Push Images'){
 			steps{
-			sh '''ssh -i "~/.ssh/jenkins_key" jenkins@$appIP	 << EOF
-			cd $repoName
-			mkdir -p /home/jenkins/Wars
-			mv ./target/*.war /home/jenkins/Wars/project_war.war
+			sh '''
+			docker push debushee/$imageName:latest
+			docker push debushee/$imageName:build-$BUILD_NUMBER
 			'''
 			}
                 }
-		stage('Stopping Service'){
+		stage('Restart Container'){
 			steps{
-			sh '''ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			cd $repoName
-			bash stopservice.sh
+			sh '''
+			ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
+				if [ ! "$(docker ps -a -q -f name=$containerName)" ]; then
+    				if [ "$(docker ps -aq -f status=exited -f name=$containerName)" ]; then
+        				docker rm -f $containerName
+						docker rmi $imageName
+    				fi
+    				# run your container
+    				docker run -d -p 8080:8080 --name $containerName $imageName
+				fi
 			'''
 			}
 		}
-		stage('Create new service file'){
+		stage('Clean Up'){
 			steps{
-			sh '''ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			mkdir -p /home/jenkins/appservice
-			echo '#!/bin/bash
-sudo java -jar /home/jenkins/Wars/project_war.war' > /home/jenkins/appservice/start.sh
-sudo chmod +x /home/jenkins/appservice/start.sh
-echo '[Unit]
-Description=My SpringBoot App
-
-[Service]
-User=ubuntu
-Type=simple
-
-ExecStart=/home/jenkins/appservice/start.sh
-
-[Install]
-WantedBy=multi-user.target' > /home/jenkins/myApp.service
-sudo mv /home/jenkins/myApp.service /etc/systemd/system/myApp.service
+			sh '''
+			docker system prune -f
 			'''
 			}
 		}
-		stage('Reload and restart service'){
-			steps{
-			sh '''ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			sudo systemctl daemon-reload
-			sudo systemctl restart myApp
-			'''
-			}
-		}
-
 	}
 }
