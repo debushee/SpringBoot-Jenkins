@@ -2,7 +2,7 @@ pipeline {
 	agent any
 	environment { // GIVE THESE VALUES
 		appIP="146.148.9.120";
-		containerName="debushee/java-docker";
+		containerName="java-docker";
 		imageName="debushee/java-docker";
 	}
 	stages{
