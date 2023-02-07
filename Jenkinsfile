@@ -2,22 +2,22 @@ pipeline {
 	agent any
 	environment { // GIVE THESE VALUES
 		appIP="146.148.9.120";
-		containerName="java-docker";
-		imageName="java-docker";
+		containerName="debushee/java-docker";
+		imageName="debushee/java-docker";
 	}
 	stages{
 		stage('Docker Build'){
 			steps{
 			sh '''
-			docker build -t debushee/$imageName:latest -t debushee/$imageName:build-$BUILD_NUMBER .
+			docker build -t $imageName:latest -t $imageName:build-$BUILD_NUMBER .
 			'''
 			}
 		}
 		stage('Push Images'){
 			steps{
 			sh '''
-			docker push debushee/$imageName:latest
-			docker push debushee/$imageName:build-$BUILD_NUMBER
+			docker push $imageName:latest
+			docker push $imageName:build-$BUILD_NUMBER
 			'''
 			}
                 }
