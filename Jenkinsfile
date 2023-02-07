@@ -6,6 +6,34 @@ pipeline {
 		imageName="debushee/java-docker";
 	}
 	stages{
+		stage('Test application'){
+			steps{
+			sh '''
+			mvn clean test
+			'''
+			}
+		}
+		stage('Save tests'){
+			steps{
+			sh 'mkdir -p /home/jenkins/Tests/${BUILD_NUMBER}_tests/'
+			sh 'mv ./target/surefire-reports/*.txt /home/jenkins/Tests/${BUILD_NUMBER}_tests/'
+			}
+		}
+		stage('War Build'){
+			steps{
+			sh '''
+			mvn clean package
+			'''
+			}
+		}
+		stage('Moving war'){
+			steps{
+			sh '''
+			mkdir -p ./wars
+			mv ./target/*.war ./wars/project_war.war
+			'''
+			}
+		}
 		stage('Docker Build'){
 			steps{
 			sh '''
@@ -21,25 +49,19 @@ pipeline {
 			'''
 			}
                 }
-		stage('Restart Container'){
+		stage('Stopping container'){
+			steps{
+			sh '''
+			ssh -i "~/.ssh/jenkins_key" jenkins@appIP << EOF
+			docker rm -f $containerName	
+			'''
+			}
+                }
+		stage('Restart app'){
 			steps{
 			sh '''
 			ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-				if [ ! "$(docker ps -a -q -f name=$containerName)" ]; then
-    				if [ "$(docker ps -aq -f status=exited -f name=$containerName)" ]; then
-        				docker rm -f $containerName
-						docker rmi $imageName
-    				fi
-    				# run your container
-    				docker run -d -p 8080:8080 --name $containerName $imageName
-				fi
-			'''
-			}
-		}
-		stage('Clean Up'){
-			steps{
-			sh '''
-			docker system prune -f
+			docker run -d -p 80:8080 --name $containerName $imageName
 			'''
 			}
 		}
