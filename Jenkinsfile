@@ -53,7 +53,7 @@ pipeline {
 		stage('Stopping container'){
 			steps{
 			sh '''
-			ssh -i "~/.ssh/jenkins_key" jenkins@appIP << EOF
+			ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
 			docker rm -f $containerName	
 			'''
 			}
