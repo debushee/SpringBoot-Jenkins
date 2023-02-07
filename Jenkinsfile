@@ -62,7 +62,7 @@ pipeline {
 			steps{
 			sh '''
 			ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			docker run -d -p 80:8080 --name $containerName $imageName
+			docker run -d -p 8080:8080 --name $containerName $imageName
 			'''
 			}
 		}
