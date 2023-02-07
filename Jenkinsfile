@@ -1,7 +1,7 @@
 pipeline {
 	agent any
 	environment { // GIVE THESE VALUES
-		appIP="34.77.153.124";
+		appIP="146.148.9.120";
 		containerName="java-docker";
 		imageName="java-docker";
 	}
