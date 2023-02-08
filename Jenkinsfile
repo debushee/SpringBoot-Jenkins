@@ -36,7 +36,6 @@ pipeline {
 			sh '''
 			mkdir -p ./wars
 			mv ./target/*.war ./wars/project_war.war
-			echo 'Hi there'
 			'''
 			}
 		}
