@@ -1,13 +1,13 @@
-if ("${env.GIT_BRANCH}" == 'origin/main') {
-	    env.instanceIP="35.205.107.69"
-} else if ("${env.GIT_BRANCH}" == 'origin/development') {
-	    env.instanceIP="34.140.196.201"
-}
+// if ("${env.GIT_BRANCH}" == 'origin/main') {
+// 	    env.instanceIP="35.205.107.69"
+// } else if ("${env.GIT_BRANCH}" == 'origin/development') {
+// 	    env.instanceIP="34.140.196.201"
+// }
 
 pipeline {
 	agent any
 	environment { // GIVE THESE VALUES
-		appIP="$instanceIP";
+		//appIP="$instanceIP";
 		containerName="java-docker";
 		imageName="debushee/java-docker";
 	}
@@ -57,18 +57,35 @@ pipeline {
                 }
 		stage('Stopping container'){
 			steps{
-			sh '''
-			ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			docker rm -f $containerName	
-			'''
-			}
+			script {
+					if ("${GIT_BRANCH}" == 'origin/main') {
+						sh '''
+						ssh -i "~/.ssh/id_rsa" jenkins@35.205.107.69 << EOF
+						docker rm -f javabuild
+						'''
+					} else if ("${GIT_BRANCH}" == 'origin/development') {
+						sh '''
+						ssh -i "~/.ssh/id_rsa" jenkins@34.140.196.201 << EOF
+						docker rm -f javabuild
+						'''
+					}
+					}
                 }
 		stage('Restart app'){
 			steps{
-			sh '''
-			ssh -i "~/.ssh/jenkins_key" jenkins@$appIP << EOF
-			docker run -d -p 8080:8080 --name $containerName $imageName
-			'''
+			script {
+					if ("${GIT_BRANCH}" == 'origin/main') {
+						sh '''
+						ssh -i "~/.ssh/id_rsa" jenkins@35.205.107.69 << EOF
+						docker run -d -p 8080:8080 --name $containerName $imageName:latest
+						'''
+					} else if ("${GIT_BRANCH}" == 'origin/development') {
+						sh '''
+						ssh -i "~/.ssh/id_rsa" jenkins@34.140.196.201 << EOF
+						docker run -d -p 8080:8080 --name $containerName $imageName:latest
+						'''
+					}
+				}
 			}
 		}
 	}
