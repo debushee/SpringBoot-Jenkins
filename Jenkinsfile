@@ -1,7 +1,7 @@
 if ("${env.GIT_BRANCH}" == 'origin/main') {
-	    instanceIP="35.205.107.69"
+	    env.instanceIP="35.205.107.69"
 } else if ("${env.GIT_BRANCH}" == 'origin/development') {
-	    instanceIP="34.140.196.201"
+	    env.instanceIP="34.140.196.201"
 }
 
 pipeline {
