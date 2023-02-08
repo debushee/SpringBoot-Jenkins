@@ -1,7 +1,8 @@
 if ("${GIT_BRANCH}" == 'origin/main') {
-	    appIP="35.205.107.69"}
-else if ("${GIT_BRANCH}" == 'origin/development') {
-	    appIP="34.140.196.201"}
+	    appIP="35.205.107.69"
+} else if ("${GIT_BRANCH}" == 'origin/development') {
+	    appIP="34.140.196.201"
+}
 
 pipeline {
 	agent any
@@ -35,7 +36,7 @@ pipeline {
 			steps{
 			sh '''
 			mkdir -p ./wars
-			mv ./target/*.war ./wars/project_war.war
+			mv ./target/*.war ./wars/project_war.war	
 			'''
 			}
 		}
