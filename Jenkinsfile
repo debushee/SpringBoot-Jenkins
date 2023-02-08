@@ -1,6 +1,6 @@
-if ("${GIT_BRANCH}" == 'origin/main') {
+if ("${env.GIT_BRANCH}" == 'origin/main') {
 	    appIP="35.205.107.69"
-} else if ("${GIT_BRANCH}" == 'origin/development') {
+} else if ("${env.GIT_BRANCH}" == 'origin/development') {
 	    appIP="34.140.196.201"
 }
 
