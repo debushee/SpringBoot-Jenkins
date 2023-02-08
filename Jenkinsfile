@@ -1,7 +1,12 @@
+if ("${GIT_BRANCH}" == 'origin/main') {
+	    appIP="35.205.107.69"}
+else if ("${GIT_BRANCH}" == 'origin/development') {
+	    appIP="34.140.196.201"}
+
 pipeline {
 	agent any
 	environment { // GIVE THESE VALUES
-		appIP="146.148.9.120";
+		//appIP="146.148.9.120";
 		containerName="java-docker";
 		imageName="debushee/java-docker";
 	}
