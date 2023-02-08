@@ -52,7 +52,6 @@ pipeline {
 			sh '''
 			docker push $imageName:latest
 			docker push $imageName:build-$BUILD_NUMBER
-			echo "hi there"
 			'''
 			}
                 }
