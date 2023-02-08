@@ -71,6 +71,7 @@ pipeline {
 					}
 					}
                 }
+		}
 		stage('Restart app'){
 			steps{
 			script {
@@ -89,5 +90,4 @@ pipeline {
 			}
 		}
 	}
-}
 }
